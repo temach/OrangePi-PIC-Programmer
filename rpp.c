@@ -387,6 +387,8 @@ void pic_exit_lvp()
 /* Bulk erase the chip */
 void pic_bulk_erase(const struct picmicro *pic, int debug)
 {
+    pic_enter_lvp();
+
     fprintf(stderr, "Bulk erasing chip...\n");
 
     if (debug)
@@ -406,6 +408,8 @@ void pic_bulk_erase(const struct picmicro *pic, int debug)
     pic_send_cmd(pic->bulk_erase_data_memory_cmd);
     usleep(pic->bulk_erase_cycle_time);
     usleep(DELAY);
+
+    pic_exit_lvp();
 }
 
 
@@ -420,11 +424,11 @@ void pic_write(const struct picmicro *pic, char *infile, int debug)
     if (!pm)
         return;
 
-    /* Turn pic on. Give supply power. */
-    pic_enter_lvp();
-
     /* Bulk erase the chip first */
     pic_bulk_erase(pic, debug);
+
+    /* Turn pic on. Give supply power. */
+    pic_enter_lvp();
 
     fprintf(stderr, "Writing chip...\n");
 
