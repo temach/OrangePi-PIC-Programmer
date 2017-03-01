@@ -542,9 +542,6 @@ int main(int argc, char *argv[])
         case 'i':
             infile = optarg;
             break;
-        case 'r':
-            function |= 0x01;
-            break;
         case 'w':
             function |= 0x02;
             break;
@@ -574,8 +571,6 @@ int main(int argc, char *argv[])
     case 0x00:
         /* no function selected, exit */
         break;
-    case 0x01:
-        break;
     case 0x02:
         pic_write(pic, infile, debug);
         break;
@@ -583,7 +578,7 @@ int main(int argc, char *argv[])
         pic_bulk_erase(pic, debug);
         break;
     default:
-        fprintf(stderr, "\nPlease select only one option in -r, -w, -e.\n");
+        fprintf(stderr, "\nPlease select only one option in -w, -e.\n");
     };
 
     close_io();
