@@ -41,7 +41,7 @@
 #define PIC_PGM    (10)   /* Output */
 #define PIC_MCLR   (20)    /* Output */
 
-#define DELAY      (40)   /* microseconds */
+#define DELAY      (40*1000)   /* microseconds */
 
 /* 8K program memory + configuration memory + eeprom data */
 #define PICMEMSIZE (0x2100 + 0xFF)
@@ -112,10 +112,10 @@ const struct picmicro pic16f628a = {
     .program_memory_size =                0x800,
     .data_memory_size =                   128,
     /* Time intervals in microseconds */
-    .program_cycle_time =                 4000,
-    .eeprom_program_cycle_time =          6000,
-    .erase_and_program_cycle_time =       4000,
-    .bulk_erase_cycle_time =              6000,
+    .program_cycle_time =                 4000*1000,
+    .eeprom_program_cycle_time =          6000*1000,
+    .erase_and_program_cycle_time =       4000*1000,
+    .bulk_erase_cycle_time =              6000*1000,
     /* Commands */
     .load_configuration_cmd =             0x00,
     .load_data_for_program_memory_cmd =   0x02,
