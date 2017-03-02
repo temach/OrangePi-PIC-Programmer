@@ -44,7 +44,11 @@
 #define DELAY      (40)   /* microseconds */ // max(T_HLD0, T_HLD1, T_SET1, T_DLY2, T_DLY1)
 
 /* 8K program memory + configuration memory + eeprom data */
-#define PICMEMSIZE (0x2100 + 0xFF)
+// For PIC 16f628a
+// 0x0000 - 0x07FF = program memory (0x800 = 2048 words)
+// 0x2000 - 0x2007 = configuration mem (7 words)
+// 0x2100 - 0x2180 = EEPROM memory (128 bytes)
+#define PICMEMSIZE (0x2100 + 0x80)
 
 /* AllWinner H3 datasheet, page 86, page 316 */
 // Map from CCU_BASE because it seems that mmap can only map on 0x10000 boundary
