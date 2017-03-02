@@ -41,7 +41,7 @@
 #define PIC_PGM    (10)   /* Output */
 #define PIC_MCLR   (20)    /* Output */
 
-#define DELAY      (40*1000)   /* microseconds */
+#define DELAY      (40)   /* microseconds */ // max(T_HLD0, T_HLD1, T_SET1, T_DLY2, T_DLY1)
 
 /* 8K program memory + configuration memory + eeprom data */
 #define PICMEMSIZE (0x2100 + 0xFF)
@@ -86,10 +86,9 @@ struct picmicro {
     size_t   program_memory_size;
     size_t   data_memory_size;
 
-    int program_cycle_time;     /* in microseconds */
-    int eeprom_program_cycle_time;
-    int erase_and_program_cycle_time;
-    int bulk_erase_cycle_time;
+    int program_cycle_time;     /* in microseconds */   // T_PROG
+    int eeprom_program_cycle_time;  // T_DPROG
+    int bulk_erase_cycle_time;      // T_ERA
 
     uint8_t load_configuration_cmd;
     uint8_t load_data_for_program_memory_cmd;
@@ -112,10 +111,9 @@ const struct picmicro pic16f628a = {
     .program_memory_size =                0x800,
     .data_memory_size =                   128,
     /* Time intervals in microseconds */
-    .program_cycle_time =                 4000*1000,
-    .eeprom_program_cycle_time =          6000*1000,
-    .erase_and_program_cycle_time =       4000*1000,
-    .bulk_erase_cycle_time =              6000*1000,
+    .program_cycle_time =                 4000,
+    .eeprom_program_cycle_time =          6000,
+    .bulk_erase_cycle_time =              6000,
     /* Commands */
     .load_configuration_cmd =             0x00,
     .load_data_for_program_memory_cmd =   0x02,
@@ -411,7 +409,6 @@ void pic_bulk_erase(const struct picmicro *pic, int debug)
 
     pic_exit_lvp();
 }
-
 
 
 /* Bulk erase the chip, and then write contents of the .hex file to the PIC */
