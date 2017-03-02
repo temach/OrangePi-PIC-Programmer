@@ -675,8 +675,13 @@ struct picmemory *read_inhx16(char *infile, int debug)
                                 free_picmemory(&pm);
                                 return NULL;
                         }
+                        if (address % 2 != 0) {
+                            fprintf(stderr, "Error: expecting 14-bit data which always comes in multiples of 2 bytes\n");
+                            free_picmemory(&pm);
+                            return NULL;
+                        }
                         if (debug)
-                                fprintf(stderr, "  address     = 0x%04X\n", address);
+                                fprintf(stderr, "  address     = 0x%04X (by byte) = 0x%04X (by word)\n", address, address/2);
 
                         nread = sscanf(&line[7], "%2hhx", &record_type);
                         if (nread != 1) {
@@ -696,6 +701,10 @@ struct picmemory *read_inhx16(char *infile, int debug)
                         checksum_calculated += (address >> 8) & 0xFF;
                         checksum_calculated += address & 0xFF;
                         checksum_calculated += record_type;
+                        // because we are programming a pic with 14-bit cells (addressed by word)
+                        // and HEX file writes the address by bytes
+                        // we need to divide by 2 to get address in words
+                        address /= 2;
 
                         // NOTE: here we loop (byte_count / 2), becasue of 14-bit wide data
                         for (i = 0; i < byte_count / 2; i++) {
