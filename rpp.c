@@ -592,6 +592,11 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+uint16_t swap_uint16(uint16_t val)
+{
+	return (val << 8) | (val >> 8);
+}
+
 /* Read a file in Intel HEX 16-bit format and return a pointer to the picmemory
    struct on success, or NULL on error */
 struct picmemory *read_inhx16(char *infile, int debug)
@@ -714,13 +719,14 @@ struct picmemory *read_inhx16(char *infile, int debug)
                         // NOTE: here we loop (byte_count / 2), becasue of 14-bit wide data
                         for (i = 0; i < byte_count / 2; i++) {
                                 nread = sscanf(&line[9+4*i], "%4hx", &data);
+				uint16_t pic_data = swap_uint16(data);
                                 if (nread != 1) {
                                         fprintf(stderr, "Error: cannot read data.\n");
                                         free_picmemory(&pm);
                                         return NULL;
                                 }
                                 if (debug)
-                                        fprintf(stderr, "  data        = 0x%04X\n", data);
+                                        fprintf(stderr, "  data        = 0x%04X (file) = 0x%04X (micro)\n", data, pic_data);
                                 checksum_calculated += (data >> 8) & 0xFF;
                                 checksum_calculated += data & 0xFF;
 
@@ -732,7 +738,7 @@ struct picmemory *read_inhx16(char *infile, int debug)
                                 else if (address + i >= 0x2100)
                                         pm->has_eeprom_data = 1;
 
-                                pm->data[address + i]   = data;
+                                pm->data[address + i]   = pic_data;
                                 pm->filled[address + i] = 1;
                         }
 
