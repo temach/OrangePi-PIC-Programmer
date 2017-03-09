@@ -540,6 +540,9 @@ int main(int argc, char *argv[])
         case 'i':
             infile = optarg;
             break;
+        case 'r':
+            function |= 0x01;
+            break;
         case 'w':
             function |= 0x02;
             break;
@@ -568,6 +571,9 @@ int main(int argc, char *argv[])
     switch (function) {
     case 0x00:
         /* no function selected, exit */
+        break;
+    case 0x01:
+        read_inhx16(infile, debug);
         break;
     case 0x02:
         pic_write(pic, infile, debug);
@@ -738,8 +744,10 @@ struct picmemory *read_inhx16(char *infile, int debug)
                                 free_picmemory(&pm);
                                 return NULL;
                         }
-                        if (debug)
+                        if (debug) {
                                 fprintf(stderr, "  checksum    = 0x%02X\n", checksum_read);
+                                fprintf(stderr, "  calc chksm  = 0x%02X\n", checksum_calculated);
+			}
 
                         if (checksum_calculated != checksum_read) {
                                 fprintf(stderr, "Error: checksum does not match.\n");
