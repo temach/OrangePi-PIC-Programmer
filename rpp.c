@@ -745,9 +745,9 @@ int main(int argc, char *argv[])
         pic_write(pic, infile, debug);
         break;
     case 0x04:
-	pic_enter_lvp();
+        pic_enter_lvp();
         pic_bulk_erase(pic, debug);
-	pic_exit_lvp();
+        pic_exit_lvp();
         break;
     default:
         fprintf(stderr, "\nPlease select only one option in -w, -e.\n");
@@ -768,7 +768,7 @@ int main(int argc, char *argv[])
  */
 uint16_t swap_uint16(uint16_t val)
 {
-	return (val << 8) | (val >> 8);
+    return (val << 8) | (val >> 8);
 }
 
 /* -----------------------------------------------------------------------------*/
@@ -901,7 +901,7 @@ struct picmemory *read_inhx16(char *infile, int debug)
                         // NOTE: here we loop (byte_count / 2), becasue of 14-bit wide data
                         for (i = 0; i < byte_count / 2; i++) {
                                 nread = sscanf(&line[9+4*i], "%4hx", &data);
-				uint16_t pic_data = swap_uint16(data);
+                                uint16_t pic_data = swap_uint16(data);
                                 if (nread != 1) {
                                         fprintf(stderr, "Error: cannot read data.\n");
                                         free_picmemory(&pm);
@@ -935,7 +935,7 @@ struct picmemory *read_inhx16(char *infile, int debug)
                         if (debug) {
                                 fprintf(stderr, "  checksum    = 0x%02X\n", checksum_read);
                                 fprintf(stderr, "  calc chksm  = 0x%02X\n", checksum_calculated);
-			}
+            }
 
                         if (checksum_calculated != checksum_read) {
                                 fprintf(stderr, "Error: checksum does not match.\n");
