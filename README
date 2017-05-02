@@ -1,0 +1,25 @@
+---------------
+0. Introduction
+---------------
+
+This is a programmer for the PICs produced by Mircochip. Its a combination of software and hardware.
+
+----------
+1. License
+----------
+
+oppp (Orange Pi Pic Programmer) is free software and it is released under the GNU GPLv3 license.
+
+---------------------------------
+2. Hardware interface, usage, etc
+---------------------------------
+
+This has been tested to work only with Orange Pi Lite.
+But it _should_ work with other boards that use Allwinner H3 processor
+and GPIO connector type B (which is what rasberry pi uses).
+
+---------
+3. Credits
+---------
+Although the hardware is quite different, ideas for the code were taken from http://holdenc.altervista.org/rpp/
+Giorgio Vazzana, <mywing81@gmail.com>
