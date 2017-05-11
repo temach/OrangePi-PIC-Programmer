@@ -1,3 +1,4 @@
+/** @file */
 /*
  * Raspberry Pi PIC Programmer using GPIO connector
  * Copyright 2012 Giorgio Vazzana
@@ -73,6 +74,10 @@ uint32_t PA_DAT_OFS  = 0x00000010ul; /*  Port A Data Register */
  *  of the file, because there is no need to change it */
 struct picmemory *read_inhx16(char *infile, int debug);
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Structure for the pic memory map.
+ */
 struct picmemory {
     uint16_t  program_memory_used_cells;
     uint16_t  program_memory_max_used_address;
@@ -84,6 +89,11 @@ struct picmemory {
     uint8_t  *filled;   /* 1 if this cell is used */
 };
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Structure representing the various settings that are used in programming
+ * a specific model of the microcontroller.
+ */
 struct picmicro {
     uint16_t device_id;
     char     name[16];
@@ -108,6 +118,10 @@ struct picmicro {
 
 #define PIC16F628A 0x1060
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Instance of picmicro structure. Contains constants for PIC16f628a/627a/648a
+ */
 const struct picmicro pic16f628a = {
     /* General */
     .device_id =                          PIC16F628A,
@@ -133,7 +147,15 @@ const struct picmicro pic16f628a = {
 
 const struct picmicro *piclist[] = {&pic16f628a, NULL};
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Memory file descriptor. Used to memory map Alwinner H3 processor registers.
+ */
 int                mem_fd;
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Pointer to the base adress of GPIO module in the Allwinner H3 processor.
+ */
 volatile char* gpio;  /* Always use volatile pointer! */
 
 /* AllWinner Pi GPIO setup macros. */
@@ -150,11 +172,26 @@ volatile char* gpio;  /* Always use volatile pointer! */
  *  bit 0 is LSB (most-right bit). And bits are both
  *  ends inclusive. So bits 5:4 are two bits. */
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Tests if a bit is set.
+ *
+ * @param n Number to test in
+ * @param bit Number of the bit to test
+ *
+ * @return True - bit is set. False - bit is cleared.
+ */
 bool test_bit(uint32_t n, int bit)
 {
     return n & (1U << bit);
 }
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Prints a number in hex format to stdout.
+ *
+ * @param n Number to print.
+ */
 void print_hex(uint32_t n)
 {
     for (int i=0; i<32; i++) {
@@ -165,12 +202,28 @@ void print_hex(uint32_t n)
     printf("\n");
 }
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Reads input from GPIO pin.
+ *
+ * @param pin To read voltage from.
+ *
+ * @return 0 or 1
+ */
 int gpio_rd(long pin) {
     (void)pin;
     perror("Reading is not supported");
     exit(1);
 }
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Returns a pointer to the DATA register for a particular pin.
+ *
+ * @param pin Pin to get the register address for.
+ *
+ * @return Pointer to DATA register for the pin.
+ */
 volatile uint32_t* get_data_reg(int pin)
 {
     if (pin != 7 && pin != 8 && pin != 9 && pin != 10 && pin != 20) {
@@ -181,6 +234,16 @@ volatile uint32_t* get_data_reg(int pin)
     return data_reg;
 }
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Modifies an existing data value to toggle or clear a pin output.
+ *
+ * @param data Existing DATA register value.
+ * @param pin Pin number to modify.
+ * @param value 0 or 1
+ *
+ * @return  new value that should be written to the register.
+ */
 uint32_t modify_data(uint32_t data, int pin, int value)
 {
     uint32_t new_data;
@@ -193,6 +256,13 @@ uint32_t modify_data(uint32_t data, int pin, int value)
     return new_data;
 }
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Writes a value to the GPIO pin.
+ *
+ * @param pin Number of the pin.
+ * @param value 0 or 1
+ */
 void gpio_wr(int pin, int value) {
     volatile uint32_t* data_reg = get_data_reg(pin);
     uint32_t data = *data_reg;
@@ -200,6 +270,14 @@ void gpio_wr(int pin, int value) {
     *(data_reg) = new_data;
 }
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Returns the address for the CONFIG register for a specific pin.
+ *
+ * @param pin Number of the pin.
+ *
+ * @return Pointer to the CONFIG register for this particular pin.
+ */
 volatile uint32_t* get_cfg_reg(int pin)
 {
     volatile uint32_t* cfg_reg;
@@ -219,6 +297,16 @@ volatile uint32_t* get_cfg_reg(int pin)
     return cfg_reg;
 }
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Modifies the current CONFIG register value to change pin settings
+ * to OUTPUT
+ *
+ * @param cfg Current cfg register value.
+ * @param pin Number of the pin.
+ *
+ * @return New value that should be writtten to the config register for this pin.
+ */
 uint32_t modify_cfg_output(uint32_t cfg, int pin)
 {
     /* Write value 001 to position of pin, each pin is z001 ('z' means dont care) */
@@ -227,7 +315,13 @@ uint32_t modify_cfg_output(uint32_t cfg, int pin)
     return new_new_cfg;
 }
 
-// Pin is one of PA7, PA8, PA9, PA10, PA20
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Changes GPIO pin settings into OUTPUT mode.
+ * Pin is one of PA7, PA8, PA9, PA10, PA20
+ *
+ * @param pin Number of the pin.
+ */
 void gpio_output(int pin)
 {
     volatile uint32_t* cfg_reg = get_cfg_reg(pin);
@@ -236,6 +330,16 @@ void gpio_output(int pin)
     *(cfg_reg) = new_cfg;
 }
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Modifies the current CONFIG register value to change pin settings
+ * to INPUT
+ *
+ * @param cfg Current cfg register value.
+ * @param pin Number of the pin.
+ *
+ * @return New value that should be writtten to the config register for this pin.
+ */
 uint32_t modify_cfg_input(uint32_t cfg, int pin)
 {
     /* Write value 000 to position of pin, each pin is z000 ('z' means dont care) */
@@ -243,6 +347,13 @@ uint32_t modify_cfg_input(uint32_t cfg, int pin)
     return new_cfg;
 }
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Changes GPIO pin settings into INPUT mode.
+ * Pin is one of PA7, PA8, PA9, PA10, PA20
+ *
+ * @param pin Number of the pin.
+ */
 void gpio_input(int pin)
 {
     volatile uint32_t* cfg_reg = get_cfg_reg(pin);
@@ -252,7 +363,11 @@ void gpio_input(int pin)
 }
 
 
-/* Set up a memory regions to access GPIO */
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Set up a memory regions to access GPIO. Memory map 
+ * Allwinner H3 processor registers.
+ */
 void setup_io()
 {
     /* open /dev/mem */
@@ -289,7 +404,10 @@ void setup_io()
     usleep(DELAY);
 }
 
-/* Release GPIO memory region */
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Closes GPIO connections and releases memory regions.
+ */
 void close_io()
 {
     int ret;
@@ -315,6 +433,12 @@ void close_io()
     }
 }
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Frees picmemory structure
+ *
+ * @param ppm structure to free
+ */
 void free_picmemory(struct picmemory **ppm)
 {
     free((*ppm)->data);
@@ -322,7 +446,12 @@ void free_picmemory(struct picmemory **ppm)
     free(*ppm);
 }
 
-/* Send a 6-bit command to the PIC */
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Send a 6-bit command to the PIC 
+ *
+ * @param cmd Hex code of the command
+ */
 void pic_send_cmd(uint8_t cmd)
 {
     int i;
@@ -341,7 +470,12 @@ void pic_send_cmd(uint8_t cmd)
     usleep(DELAY);
 }
 
-/* Load 14-bit data to the PIC (start bit, 14-bit data, stop bit. lsb first) */
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Load 14-bit data to the PIC (start bit, 14-bit data, stop bit. lsb first) 
+ *
+ * @param data Data to be loaded
+ */
 void pic_load_data(uint16_t data)
 {
     int i;
@@ -362,7 +496,10 @@ void pic_load_data(uint16_t data)
     usleep(DELAY);
 }
 
-/*  Put pic into low voltage programming mode */
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Put pic into low voltage programming mode 
+ */
 void pic_enter_lvp()
 {
     GPIO_SET(PIC_VDD);
@@ -373,7 +510,10 @@ void pic_enter_lvp()
     usleep(DELAY);
 }
 
-/*  Exit from voltage programming mode and turn off the chip power */
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Exit from voltage programming mode and turn off the chip power 
+ */
 void pic_exit_lvp()
 {
     /*  The order does not matter. Datasheet does not specify. */
@@ -386,7 +526,13 @@ void pic_exit_lvp()
     usleep(DELAY);
 }
 
-/* Bulk erase the chip */
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Bulk erase the chip 
+ *
+ * @param pic Settings to use while erasing.
+ * @param debug 1 if you want debug info printed.
+ */
 void pic_bulk_erase(const struct picmicro *pic, int debug)
 {
     fprintf(stderr, "Bulk erasing chip...\n");
@@ -411,7 +557,14 @@ void pic_bulk_erase(const struct picmicro *pic, int debug)
 }
 
 
-/* Bulk erase the chip, and then write contents of the .hex file to the PIC */
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Bulk erase the chip, and then write contents of the .hex file to the PIC 
+ *
+ * @param pic Settings for the pic to be programmed.
+ * @param infile input file name
+ * @param debug 1 if you want debug info printed
+ */
 void pic_write(const struct picmicro *pic, char *infile, int debug)
 {
     uint16_t addr;
@@ -496,6 +649,10 @@ void pic_write(const struct picmicro *pic, char *infile, int debug)
     free_picmemory(&pm);
 }
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Prints the usage guide for the program.
+ */
 void usage(void)
 {
     const struct picmicro **ppic;
@@ -520,6 +677,15 @@ void usage(void)
     fprintf(stderr, "\n");
 }
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Main entry function
+ *
+ * @param argc
+ * @param argv[]
+ *
+ * @return 
+ */
 int main(int argc, char *argv[])
 {
     int opt, debug = 0, function = 0;
@@ -592,13 +758,29 @@ int main(int argc, char *argv[])
     return 0;
 }
 
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Swapps the lower and higher bytes of the unint16_t
+ *
+ * @param val Int16 to swap
+ *
+ * @return Swapped value
+ */
 uint16_t swap_uint16(uint16_t val)
 {
 	return (val << 8) | (val >> 8);
 }
 
-/* Read a file in Intel HEX 16-bit format and return a pointer to the picmemory
-   struct on success, or NULL on error */
+/* -----------------------------------------------------------------------------*/
+/**
+ * @brief Read a file in Intel HEX 16-bit format and return a pointer to the picmemory
+   struct on success, or NULL on error
+ *
+ * @param infile Input file name
+ * @param debug 1 if you want debug info printed
+ *
+ * @return Structure for the pic memory map
+ */
 struct picmemory *read_inhx16(char *infile, int debug)
 {
         FILE *fp;
